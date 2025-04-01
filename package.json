@@ -1,0 +1,27 @@
+{
+  "name": "astro-cms",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Milia-yuuta/astro-cms.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Milia-yuuta/astro-cms/issues"
+  },
+  "homepage": "https://github.com/Milia-yuuta/astro-cms#readme",
+  "description": "",
+  "dependencies": {
+    "pnpm": "^10.7.1",
+    "astro": "^5.5.6"
+  }
+}
