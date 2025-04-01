@@ -1,22 +1,156 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+import { Icon } from 'astro-icon/components';
+import '../styles/global.css';
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+interface Props {
+	title: string;
+	currentPath: string;
+}
+
+const { title, currentPath } = Astro.props;
+
+// currentPathが/admin/manga のような形式の場合、/adminや/admin/manga/1などでも正しくハイライトするための関数
+function isActiveRoute(itemPath: string) {
+	console.log('check')
+	console.log(itemPath)
+	console.log(currentPath)
+	// 完全一致の場合
+	if (currentPath === itemPath) return true;
+
+	// ルートページは完全一致のみを許可
+	if (itemPath === "/") return currentPath === "/";
+
+	// サブページの場合 (例：/mangas/123 は /mangas にマッチする)
+	return currentPath.startsWith(itemPath);
+}
+
+const navItems = [
+	{ name: 'Dashboard', href: '/', icon: 'view-grid' },
+	{ name: 'Manga', href: '/mangas', icon: 'book' },
+	{ name: 'Categories', href: '/categories', icon: 'tag' },
+	{ name: 'Markets', href: '/markets', icon: 'shopify' },
+];
+---
+
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>{title} | Manga CMS</title>
+</head>
+<body class="bg-gray-50">
+<div class="flex h-screen overflow-hidden">
+	<!-- Sidebar -->
+	<div class="hidden md:flex md:flex-shrink-0">
+		<div class="flex flex-col w-64">
+			<div class="flex flex-col flex-grow pt-5 overflow-y-auto bg-[#4020e7] border-r">
+				<div class="flex items-center flex-shrink-0 px-4">
+					<h1 class="text-xl font-bold text-white">Manga CMS</h1>
+				</div>
+				<div class="mt-5 flex-1 flex flex-col">
+					<nav class="flex-1 px-2 space-y-1">
+						{navItems.map((item) => {
+							const isActive = isActiveRoute(item.href);
+							return (
+								<a
+									href={item.href}
+									class={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+										isActive
+											? 'bg-[#3010d7] text-white border-l-4 border-white pl-1'
+											: 'text-white hover:bg-[#3010d7]'
+									}`}
+									aria-current={isActive ? 'page' : undefined}
+								>
+									<Icon name={item.icon} class={`mr-3 flex-shrink-0 h-6 w-6 ${isActive ? 'text-white' : 'text-gray-100'}`} />
+									{item.name}
+								</a>
+							);
+						})}
+					</nav>
+				</div>
+				<div class="p-4">
+					<a
+						href="/admin/logout"
+						class="flex items-center px-2 py-2 text-sm font-medium text-white hover:bg-[#3010d7] rounded-md"
+					>
+						<Icon name="logout" class="mr-3 flex-shrink-0 h-6 w-6 text-white" />
+						Logout
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Main content -->
+	<div class="flex flex-col flex-1 overflow-hidden">
+		<!-- Top navbar -->
+		<div class="flex-shrink-0 flex h-16 bg-white border-b border-gray-200">
+			<button
+				type="button"
+				class="px-4 border-r border-gray-200 text-gray-500 md:hidden"
+				id="sidebar-toggle"
+			>
+				<span class="sr-only">Open sidebar</span>
+				<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+				</svg>
+			</button>
+			<div class="flex-1 px-4 flex justify-between">
+				<div class="flex-1 flex items-center">
+					<h2 class="text-xl font-semibold text-gray-900">{title}</h2>
+				</div>
+				<div class="ml-4 flex items-center md:ml-6">
+					<!-- パンくずリスト（現在地も示すのに有用） -->
+					<div class="hidden sm:flex items-center text-sm text-gray-500">
+						{currentPath !== "/" && (
+							<>
+								<a href="/" class="hover:text-gray-700">Dashboard</a>
+								{navItems.map((item) => (
+									item.href !== "/" && currentPath.startsWith(item.href) && (
+										<>
+											<span class="mx-2">/</span>
+											<span class={currentPath === item.href ? "font-medium text-gray-900" : ""}>
+                                                <a href={item.href} class="hover:text-gray-700">{item.name}</a>
+                                            </span>
+										</>
+									)
+								))}
+							</>
+						)}
+					</div>
+
+					<div class="relative ml-4">
+						<button
+							type="button"
+							class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4020e7]"
+							id="user-menu-button"
+						>
+							<span class="sr-only">Open user menu</span>
+							<div class="h-8 w-8 rounded-full bg-[#4020e7] flex items-center justify-center text-white">
+								A
+							</div>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Main content area -->
+		<main class="flex-1 relative overflow-y-auto focus:outline-none p-6">
+			<slot />
+		</main>
+	</div>
+</div>
+
+<script>
+	document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
+		// Mobile sidebar toggle implementation
+		const sidebar = document.querySelector('.md\\:flex');
+		sidebar?.classList.toggle('hidden');
+		sidebar?.classList.toggle('fixed');
+		sidebar?.classList.toggle('inset-0');
+		sidebar?.classList.toggle('z-40');
+	});
+</script>
+</body>
+</html>

@@ -1,0 +1,432 @@
+---
+import Lauout from '../../layouts/Layout.astro';
+import { Icon } from 'astro-icon/components';
+
+// In a real implementation, you would fetch the manga data from your D1 database
+// based on the ID in the URL parameters
+const { id } = Astro.params;
+const isNewManga = id === 'new';
+
+// Mock data for an existing manga
+const manga = isNewManga ? {
+  id: '',
+  title: '',
+  author: '',
+  publisher: '',
+  description: '',
+  coverImage: '',
+  releaseDate: '',
+  rating: {
+    overall: 0,
+    story: 0,
+    art: 0,
+    characters: 0
+  },
+  categories: [],
+  markets: []
+} : {
+  id: '1',
+  title: 'One Piece',
+  author: 'Eiichiro Oda',
+  publisher: 'Shueisha',
+  description: 'The story follows the adventures of Monkey D. Luffy, a boy whose body gained the properties of rubber after unintentionally eating a Devil Fruit.',
+  coverImage: '/images/one-piece.jpg',
+  releaseDate: '1997-07-22',
+  rating: {
+    overall: 4.8,
+    story: 4.9,
+    art: 4.7,
+    characters: 4.9
+  },
+  categories: ['Shonen', 'Adventure', 'Fantasy'],
+  markets: [
+    { id: 1, name: 'Amazon', url: 'https://amazon.com/one-piece' },
+    { id: 2, name: 'Viz Media', url: 'https://viz.com/one-piece' }
+  ]
+};
+
+// Mock data for categories and markets
+const allCategories = [
+  'Shonen', 'Shojo', 'Seinen', 'Josei', 'Adventure', 'Action', 'Comedy',
+  'Drama', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Sci-Fi', 'Slice of Life',
+  'Sports', 'Supernatural', 'Thriller', 'Historical', 'Mecha', 'Psychological'
+];
+
+const allMarkets = [
+  { id: 1, name: 'Amazon' },
+  { id: 2, name: 'Viz Media' },
+  { id: 3, name: 'Crunchyroll' },
+  { id: 4, name: 'BookWalker' },
+  { id: 5, name: 'Comixology' },
+  { id: 6, name: 'Kinokuniya' },
+  { id: 7, name: 'Barnes & Noble' },
+  { id: 8, name: 'Right Stuf Anime' }
+];
+
+const pageTitle = isNewManga ? 'Add New Manga' : `Edit Manga: ${manga.title}`;
+---
+
+<Lauout title={pageTitle} currentPath="/manga">
+  <div class="space-y-6">
+    <!-- Back button -->
+    <div>
+      <a href="/admin/manga" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
+        <Icon name="arrow-left" class="h-4 w-4 mr-1" />
+        Back to Manga List
+      </a>
+    </div>
+
+    <!-- Form card -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <form id="mangaForm" class="space-y-8 divide-y divide-gray-200">
+        <div class="p-6 space-y-8">
+          <!-- Basic Information -->
+          <div>
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Basic Information</h3>
+            <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+              <div class="sm:col-span-3">
+                <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                <div class="mt-1">
+                  <input
+                    type="text"
+                    name="title"
+                    id="title"
+                    value={manga.title}
+                    class="shadow-sm focus:ring-[#4020e7] focus:border-[#4020e7] block w-full sm:text-sm border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="sm:col-span-3">
+                <label for="author" class="block text-sm font-medium text-gray-700">Author</label>
+                <div class="mt-1">
+                  <input
+                    type="text"
+                    name="author"
+                    id="author"
+                    value={manga.author}
+                    class="shadow-sm focus:ring-[#4020e7] focus:border-[#4020e7] block w-full sm:text-sm border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="sm:col-span-3">
+                <label for="publisher" class="block text-sm font-medium text-gray-700">Publisher</label>
+                <div class="mt-1">
+                  <input
+                    type="text"
+                    name="publisher"
+                    id="publisher"
+                    value={manga.publisher}
+                    class="shadow-sm focus:ring-[#4020e7] focus:border-[#4020e7] block w-full sm:text-sm border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+
+              <div class="sm:col-span-3">
+                <label for="releaseDate" class="block text-sm font-medium text-gray-700">Release Date</label>
+                <div class="mt-1">
+                  <input
+                    type="date"
+                    name="releaseDate"
+                    id="releaseDate"
+                    value={manga.releaseDate}
+                    class="shadow-sm focus:ring-[#4020e7] focus:border-[#4020e7] block w-full sm:text-sm border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+
+              <div class="sm:col-span-6">
+                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                <div class="mt-1">
+                  <textarea
+                    id="description"
+                    name="description"
+                    rows="4"
+                    class="shadow-sm focus:ring-[#4020e7] focus:border-[#4020e7] block w-full sm:text-sm border-gray-300 rounded-md"
+                  >{manga.description}</textarea>
+                </div>
+              </div>
+
+              <div class="sm:col-span-6">
+                <label for="coverImage" class="block text-sm font-medium text-gray-700">Cover Image</label>
+                <div class="mt-1 flex items-center">
+                  <div class="flex-shrink-0 h-32 w-24 bg-gray-100 rounded-md overflow-hidden">
+                    {manga.coverImage ? (
+                      <img src={manga.coverImage || "/placeholder.svg"} alt="Cover" class="h-full w-full object-cover" />
+                    ) : (
+                      <div class="h-full w-full flex items-center justify-center text-gray-400">
+                        No image
+                      </div>
+                    )}
+                  </div>
+                  <div class="ml-5">
+                    <div class="relative bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm flex items-center cursor-pointer hover:bg-gray-50 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#4020e7]">
+                      <label for="file-upload" class="relative text-sm font-medium text-[#4020e7] pointer-events-none">
+                        <span>Upload a file</span>
+                        <span class="sr-only"> cover image</span>
+                      </label>
+                      <input id="file-upload" name="file-upload" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer border-gray-300 rounded-md" />
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">WEBP up to 300kb</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rating Information -->
+          <div class="pt-8">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Rating Information</h3>
+            <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+              <div class="sm:col-span-3">
+                <label for="overallRating" class="block text-sm font-medium text-gray-700">Overall Rating</label>
+                <div class="mt-1">
+                  <input
+                    type="number"
+                    name="overallRating"
+                    id="overallRating"
+                    min="0"
+                    max="5"
+                    step="0.1"
+                    value={manga.rating.overall}
+                    class="shadow-sm focus:ring-[#4020e7] focus:border-[#4020e7] block w-full sm:text-sm border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+
+              <div class="sm:col-span-3">
+                <label for="storyRating" class="block text-sm font-medium text-gray-700">Story Rating</label>
+                <div class="mt-1">
+                  <input
+                    type="number"
+                    name="storyRating"
+                    id="storyRating"
+                    min="0"
+                    max="5"
+                    step="0.1"
+                    value={manga.rating.story}
+                    class="shadow-sm focus:ring-[#4020e7] focus:border-[#4020e7] block w-full sm:text-sm border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+
+              <div class="sm:col-span-3">
+                <label for="artRating" class="block text-sm font-medium text-gray-700">Art Rating</label>
+                <div class="mt-1">
+                  <input
+                    type="number"
+                    name="artRating"
+                    id="artRating"
+                    min="0"
+                    max="5"
+                    step="0.1"
+                    value={manga.rating.art}
+                    class="shadow-sm focus:ring-[#4020e7] focus:border-[#4020e7] block w-full sm:text-sm border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+
+              <div class="sm:col-span-3">
+                <label for="charactersRating" class="block text-sm font-medium text-gray-700">Characters Rating</label>
+                <div class="mt-1">
+                  <input
+                    type="number"
+                    name="charactersRating"
+                    id="charactersRating"
+                    min="0"
+                    max="5"
+                    step="0.1"
+                    value={manga.rating.characters}
+                    class="shadow-sm focus:ring-[#4020e7] focus:border-[#4020e7] block w-full sm:text-sm border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Categories -->
+          <div class="pt-8">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Categories</h3>
+            <div class="mt-6">
+              <fieldset>
+                <legend class="sr-only">Categories</legend>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {allCategories.map((category) => (
+                    <div class="relative flex items-start">
+                      <div class="flex items-center h-5">
+                        <input
+                          id={`category-${category}`}
+                          name="categories"
+                          type="checkbox"
+                          value={category}
+                          checked={manga.categories.includes(category)}
+                          class="focus:ring-[#4020e7] h-4 w-4 text-[#4020e7] border-gray-300 rounded"
+                        />
+                      </div>
+                      <div class="ml-3 text-sm">
+                        <label for={`category-${category}`} class="font-medium text-gray-700">{category}</label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </fieldset>
+            </div>
+          </div>
+
+          <!-- Markets -->
+          <div class="pt-8">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Sales Markets</h3>
+            <p class="mt-1 text-sm text-gray-500">Where can readers purchase this manga?</p>
+
+            <div class="mt-6 space-y-4" id="markets-container">
+              {manga.markets.map((market, index) => (
+                <div class="flex items-center space-x-4 market-entry">
+                  <div class="w-1/3">
+                    <label class="block text-sm font-medium text-gray-700 sr-only">Market</label>
+                    <select
+                      name={`market-${index}`}
+                      class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[#4020e7] focus:border-[#4020e7] sm:text-sm rounded-md"
+                    >
+                      <option value="">Select a market</option>
+                      {allMarkets.map((m) => (
+                        <option value={m.id} selected={m.id === market.id}>{m.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 sr-only">URL</label>
+                    <input
+                      type="url"
+                      name={`url-${index}`}
+                      value={market.url}
+                      placeholder="https://example.com/manga-link"
+                      class="mt-1 focus:ring-[#4020e7] focus:border-[#4020e7] block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      class="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 remove-market"
+                    >
+                      <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                id="add-market"
+                class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-[#4020e7] bg-white hover:bg-[#4020e7] hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4020e7]"
+              >
+                <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                Add Market
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form actions -->
+        <div class="px-6 py-4 flex justify-between items-center">
+          {!isNewManga && (
+            <button
+              type="button"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              <Icon name="trash" class="h-5 w-5 mr-2" />
+              Delete
+            </button>
+          )}
+          <div class="flex space-x-3">
+            <a
+              href="/admin/manga"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4020e7]"
+            >
+              Cancel
+            </a>
+            <button
+              type="submit"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#4020e7] hover:bg-[#3010d7] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4020e7]"
+            >
+              <Icon name="save" class="h-5 w-5 mr-2" />
+              Save
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Add market functionality
+    document.getElementById('add-market')?.addEventListener('click', () => {
+      const container = document.getElementById('markets-container');
+      const marketEntries = document.querySelectorAll('.market-entry');
+      const newIndex = marketEntries.length;
+
+      const marketEntry = document.createElement('div');
+      marketEntry.className = 'flex items-center space-x-4 market-entry';
+      marketEntry.innerHTML = `
+        <div class="w-1/3">
+          <label class="block text-sm font-medium text-gray-700 sr-only">Market</label>
+          <select
+            name="market-${newIndex}"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[#4020e7] focus:border-[#4020e7] sm:text-sm rounded-md"
+          >
+            <option value="">Select a market</option>
+            ${Array.from(document.querySelectorAll('select[name^="market-"] option')).filter(opt => opt.value !== "").map(opt =>
+        `<option value="${opt.value}">${opt.textContent}</option>`
+      ).join('')}
+          </select>
+        </div>
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 sr-only">URL</label>
+          <input
+            type="url"
+            name="url-${newIndex}"
+            placeholder="https://example.com/manga-link"
+            class="mt-1 focus:ring-[#4020e7] focus:border-[#4020e7] block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+          />
+        </div>
+        <div>
+          <button
+            type="button"
+            class="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 remove-market"
+          >
+            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      `;
+
+      container?.insertBefore(marketEntry, document.getElementById('add-market')?.parentNode);
+
+      // Add event listener to the new remove button
+      marketEntry.querySelector('.remove-market')?.addEventListener('click', function() {
+        this.closest('.market-entry').remove();
+      });
+    });
+
+    // Remove market functionality
+    document.querySelectorAll('.remove-market').forEach(button => {
+      button.addEventListener('click', function() {
+        this.closest('.market-entry').remove();
+      });
+    });
+
+    // Form submission
+    document.getElementById('mangaForm')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      // In a real implementation, you would collect all form data and submit it to your API
+      alert('Form submitted! In a real implementation, this would save to your D1 database.');
+    });
+  </script>
+</Lauout>

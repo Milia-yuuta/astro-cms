@@ -1,11 +1,103 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Lauout from '../layouts/Layout.astro';
+import { Icon } from 'astro-icon/components';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// In a real implementation, these would come from your D1 database
+const stats = [
+	{ name: 'Total Manga', value: '124', icon: 'book' },
+	{ name: 'Categories', value: '12', icon: 'tag' },
+	{ name: 'Markets', value: '8', icon: 'shopify' },
+	{ name: 'Avg. Rating', value: '4.2', icon: 'chart' },
+];
+
+// Recent manga entries would come from the database
+const recentManga = [
+	{ id: 1, title: 'One Piece', author: 'Eiichiro Oda', rating: 4.8, updatedAt: '2023-04-15' },
+	{ id: 2, title: 'Demon Slayer', author: 'Koyoharu Gotouge', rating: 4.6, updatedAt: '2023-04-14' },
+	{ id: 3, title: 'Jujutsu Kaisen', author: 'Gege Akutami', rating: 4.7, updatedAt: '2023-04-13' },
+	{ id: 4, title: 'My Hero Academia', author: 'Kohei Horikoshi', rating: 4.5, updatedAt: '2023-04-12' },
+];
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<Lauout title="Dashboard" currentPath="/admin">
+	<div class="space-y-6">
+		<!-- Stats -->
+		<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+			{stats.map((stat) => (
+				<div class="bg-white overflow-hidden shadow rounded-lg">
+					<div class="p-5">
+						<div class="flex items-center">
+							<div class="flex-shrink-0 bg-[#4020e7] rounded-md p-3">
+								<Icon name={stat.icon} class="h-6 w-6 text-white" />
+							</div>
+							<div class="ml-5 w-0 flex-1">
+								<dl>
+									<dt class="text-sm font-medium text-gray-500 truncate">{stat.name}</dt>
+									<dd>
+										<div class="text-lg font-medium text-gray-900">{stat.value}</div>
+									</dd>
+								</dl>
+							</div>
+						</div>
+					</div>
+				</div>
+			))}
+		</div>
+
+		<!-- Recent Manga -->
+		<div class="bg-white shadow rounded-lg">
+			<div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+				<h3 class="text-lg leading-6 font-medium text-gray-900">Recent Manga</h3>
+				<a href="/admin/manga" class="text-sm text-[#4020e7] hover:text-[#3010d7]">View all</a>
+			</div>
+			<div class="border-t border-gray-200">
+				<div class="overflow-x-auto">
+					<table class="min-w-full divide-y divide-gray-200">
+						<thead class="bg-gray-50">
+						<tr>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Title
+							</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Author
+							</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Rating
+							</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Last Updated
+							</th>
+							<th scope="col" class="relative px-6 py-3">
+								<span class="sr-only">Edit</span>
+							</th>
+						</tr>
+						</thead>
+						<tbody class="bg-white divide-y divide-gray-200">
+						{recentManga.map((manga) => (
+							<tr>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<div class="text-sm font-medium text-gray-900">{manga.title}</div>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<div class="text-sm text-gray-500">{manga.author}</div>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<div class="text-sm text-gray-900">{manga.rating}</div>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+									{manga.updatedAt}
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+									<a href={`/admin/manga/${manga.id}`} class="text-[#4020e7] hover:text-[#3010d7]">
+										Edit
+									</a>
+								</td>
+							</tr>
+						))}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</Lauout>
